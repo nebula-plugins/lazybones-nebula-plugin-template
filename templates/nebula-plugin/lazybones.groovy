@@ -1,18 +1,24 @@
 def params = [:]
 
-params.description = ask('Enter your plugin\'s description: ', '', 'description')
-def pluginName = ask('Enter the plugin name: ', '', 'pluginname')
-def packageName = ask('Enter the package name you want: ', '', 'package')
-def pluginClass = ask('Enter the class name of the plugin: ', '', 'pluginclass')
-params.devName = ask('Name to add to developers block: ', '', 'name')
-params.githubId = ask('Github id: ')
-params.email = ask('Email address: ')
-params.timezone = ask('Timezone, e.g -8 for PST: ', '0', 'timezone')
-
 params.projectName = targetDir
 params.year = Calendar.getInstance().get(Calendar.YEAR)
 
+def guessPluginName = params.projectName.replaceAll(/-plugin/, '')
+def shortPlugin = guessPluginName.replaceAll(/(nebula|gradle)/, '')
+def guessPackageName = 'nebula.plugin.' + shortPlugin.replaceAll(/-/, '')
+def guessPluginClass = shortPlugin.capitalize().replaceAll(/-(.)/) { it[1].toUpperCase() } + 'Plugin'
+
+params.description = ask('Enter your plugin\'s description: ', '', 'description')
+params.pluginName = ask("Enter the name for apply plugin: (${guessPluginName}): ", guessPluginName, 'pluginname')
+params.packageName = ask("Enter the package name you want (${guessPackageName}): ", guessPackageName, 'package')
+params.pluginClass = ask("Enter the class name of the plugin (${guessPluginClass}): ", guessPluginClass, 'pluginclass')
+params.devName = ask('Name to add to developers block: ', '', 'name')
+params.githubId = ask('Github id: ', '', 'github')
+params.email = ask('Email address: ', '', 'email')
+params.timezone = ask('Timezone, e.g -8 for PST: ', '0', 'timezone')
+
 processTemplates '*.gradle', params
+processTemplates 'README.md', params
 
 def licenseText = '''\
 /*
@@ -31,17 +37,17 @@ def licenseText = '''\
  * limitations under the License.
  */'''
 
-def sourceDir = new File(targetDir, "src/main/groovy/${packageName.replaceAll(/\./, '/')}")
+def sourceDir = new File(targetDir, "src/main/groovy/${params.packageName.replaceAll(/\./, '/')}")
 sourceDir.mkdirs()
-def pluginSource = new File(sourceDir, "${pluginClass}.groovy")
+def pluginSource = new File(sourceDir, "${params.pluginClass}.groovy")
 pluginSource.text = """\
 ${licenseText}
-package ${packageName}
+package ${params.packageName}
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-class ${pluginClass} implements Plugin<Project> {
+class ${params.pluginClass} implements Plugin<Project> {
     @Override
     void apply(Project project) {
     }
@@ -50,24 +56,24 @@ class ${pluginClass} implements Plugin<Project> {
 
 def resources = new File(targetDir,'src/main/resources/META-INF/gradle-plugins')
 resources.mkdirs()
-def propertyFile = new File(resources, "${pluginName}.properties")
+def propertyFile = new File(resources, "${params.pluginName}.properties")
 propertyFile.text = """\
-implementation-class=${packageName}.${pluginClass}
+implementation-class=${params.packageName}.${params.pluginClass}
 """
 
-def testDir = new File(targetDir, "src/test/groovy/${packageName.replaceAll(/\./, '/')}")
+def testDir = new File(targetDir, "src/test/groovy/${params.packageName.replaceAll(/\./, '/')}")
 testDir.mkdirs()
-def pluginTest = new File(testDir, "${pluginClass}Spec.groovy")
+def pluginTest = new File(testDir, "${params.pluginClass}Spec.groovy")
 pluginTest.text = """\
 ${licenseText}
-package ${packageName}
+package ${params.packageName}
 
 import nebula.test.ProjectSpec
 
-class ${pluginClass}Spec extends ProjectSpec {
+class ${params.pluginClass}Spec extends ProjectSpec {
     @Override
     void getPluginName() {
-        '${pluginName}'
+        '${params.pluginName}'
     }
 }
 """
