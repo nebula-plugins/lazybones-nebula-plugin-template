@@ -13,9 +13,11 @@ buildscript {
 apply plugin: "lazybones-templates"
 
 lazybones {
+    // When publishing, the version number has to be manually bumped and the -SNAPSHOT has to be removed. :-(
     repositoryUrl = 'https://api.bintray.com/content/nebula/templates'
     repositoryUsername = project.hasProperty('bintrayUser')?bintrayUser:''
     repositoryApiKey = project.hasProperty('bintrayKey')?bintrayKey:''
+    publish = true
 }
 
 task wrapper(type: Wrapper) {
