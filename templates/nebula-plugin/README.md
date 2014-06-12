@@ -13,7 +13,7 @@ To include, add the following to your build.gradle
       repositories { jcenter() }
 
       dependencies {
-        classpath 'com.netflix.nebula:${projectName}:1.9.+'
+        classpath 'com.netflix.nebula:${projectName}:1.12.+'
       }
     }
 

@@ -15,7 +15,6 @@ params.pluginClass = ask("Enter the class name of the plugin (${guessPluginClass
 params.devName = ask('Name to add to developers block: ', '', 'name')
 params.githubId = ask('Github id: ', '', 'github')
 params.email = ask('Email address: ', '', 'email')
-params.timezone = ask('Timezone, e.g -8 for PST: ', '0', 'timezone')
 
 processTemplates '*.gradle', params
 processTemplates 'README.md', params
